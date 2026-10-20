@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNACH NormaBot - Panel de Gestión y Administración</title>
+    <meta name="description" content="Panel de administración y gestión de reglamentos, documentos y motor de IA de la Universidad Autónoma de Chiapas.">
+    
+    <link rel="stylesheet" href="/static/css/style.css?v=20261020_8">
+    <link rel="icon" type="image/png" href="/static/img/unach_logo.png">
+
+    <style>
+        .admin-nav-actions .btn-back-portal {
+            text-decoration: none;
+        }
+        .file-type-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .file-type-pdf { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+        .file-type-docx { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .file-type-xlsx { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .file-type-txt { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); }
+        .file-type-img { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
+
+        .banner-alert {
+            padding: 0.85rem 1.15rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            margin-bottom: 1.25rem;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .banner-alert.success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #a7f3d0;
+            display: flex;
+        }
+        .banner-alert.error {
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px solid rgba(244, 63, 94, 0.4);
+            color: #fecdd3;
+            display: flex;
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <!-- Login Authentication Gate Overlay -->
+    <div class="admin-gate-overlay" id="adminGate" style="display: flex;">
+        <div class="admin-gate-card">
+            <div class="gate-crest" style="background: #ffffff !important;">
+                <img src="/static/img/unach_logo.png" alt="Escudo UNACH">
+            </div>
+            <h2 class="gate-title">Acceso al Panel Creador</h2>
+            <p class="gate-subtitle">
+                Ingresa la contraseña maestra para administrar los reglamentos de la UNACH y la clave de IA del servidor.
+            </p>
+
+            <form id="loginForm" onsubmit="handleAdminLogin(event)">
+                <div class="form-group" style="text-align: left; margin-bottom: 1.25rem;">
+                    <label class="form-label" for="adminPasswordInput">Contraseña de Administrador:</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="adminPasswordInput" 
+                        placeholder="Ingresa tu contraseña..." 
+                        autocomplete="current-password"
+                        required 
+                        autofocus>
+                </div>
+
+                <div id="loginError" style="color: #ff6b81; font-size: 0.82rem; margin-bottom: 1rem; display: none;"></div>
+
+                <div style="display: flex; gap: 0.75rem;">
+                    <a href="/" class="btn-secondary" style="flex: 1; text-align: center; text-decoration: none; padding: 0.65rem;">
+                        Volver al Chat
+                    </a>
+                    <button type="submit" class="btn-primary" id="btnLoginSubmit" style="flex: 1.5; padding: 0.65rem;">
+                        Entrar al Panel ➔
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Content Container -->
+    <div class="admin-container" id="adminApp" style="display: none;">
+        
+        <!-- Header Navbar -->
+        <header class="admin-navbar">
+            <div class="admin-nav-left">
+                <div class="admin-nav-crest" style="background: #ffffff !important;">
+                    <img src="/static/img/unach_logo.png" alt="Escudo UNACH">
+                </div>
+                <div>
+                    <div class="admin-nav-title">
+                        <span>UNACH</span> <span class="gold-accent">NormaBot</span>
+                        <span class="brand-badge" style="background: rgba(212, 163, 64, 0.2); color: var(--unach-gold-300);">PANEL CREADOR</span>
+                    </div>
+                    <div class="admin-nav-subtitle">
+                        Gestión Institucional de Normatividad y Motor de Inteligencia Artificial
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-nav-actions">
+                <a href="/" class="btn-back-portal" title="Regresar al chat para alumnos">
+                    ← Portal Alumnos
+                </a>
+                <button type="button" class="btn-logout" onclick="handleLogout()" title="Cerrar sesión de administrador">
+                    🔒 Salir
+                </button>
+            </div>
+        </header>
+
+        <!-- Feedback Banner -->
+        <div class="banner-alert" id="adminAlertBanner">
+            <span id="adminAlertText">Operación exitosa</span>
+            <button type="button" onclick="closeAlertBanner()" style="background: none; border: none; color: inherit; cursor: pointer; font-size: 1rem;">✕</button>
+        </div>
+
+        <!-- Metric Summary Cards -->
+        <div class="admin-metrics">
+            <div class="metric-card">
+                <div class="metric-icon-box">📚</div>
+                <div class="metric-data">
+                    <span class="metric-value" id="statDocCount">0</span>
+                    <span class="metric-label">Documentos Oficiales</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon-box">📑</div>
+                <div class="metric-data">
+                    <span class="metric-value" id="statChunkCount">0</span>
+                    <span class="metric-label">Artículos y Cláusulas</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon-box">📖</div>
+                <div class="metric-data">
+                    <span class="metric-value" id="statPageCount">0</span>
+                    <span class="metric-label">Páginas Procesadas</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon-box">🧠</div>
+                <div class="metric-data">
+                    <span class="metric-value" id="statAiMode" style="font-size: 1.15rem;">Cargando...</span>
+                    <span class="metric-label">Motor IA Central</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: UPLOAD DOCUMENTS -->
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-title">
+                    <span>📤 Subir Nuevos Reglamentos o Documentos</span>
+                </div>
+                <span class="brand-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald);">AUTO-INDEXACIÓN ACTIVA</span>
+            </div>
+            <p class="admin-card-subtitle">
+                Arrastra o selecciona los archivos de normatividad que desees incorporar (PDF, Word, Excel, TXT, Imágenes). Al subirlos, el sistema <b>extraerá automáticamente sus artículos e indexará la información</b> para que los alumnos puedan consultarla de inmediato sin reiniciar el servidor.
+            </p>
+
+            <!-- Drag and Drop Area -->
+            <div class="dropzone" id="dropzone" onclick="document.getElementById('fileUploadInput').click()">
+                <input type="file" id="fileUploadInput" multiple accept=".pdf,.docx,.xlsx,.txt,.png,.jpg,.jpeg" style="display: none;" onchange="handleFileSelect(event)">
+                <div class="dropzone-icon">☁️</div>
+                <div class="dropzone-title">Haz clic aquí o arrastra tus archivos a este recuadro</div>
+                <div class="dropzone-desc">Soporta múltiples archivos a la vez (hasta 50 MB por archivo)</div>
+                <div class="dropzone-badge-list">
+                    <span class="dropzone-badge">📄 PDF (.pdf)</span>
+                    <span class="dropzone-badge">📝 Word (.docx)</span>
+                    <span class="dropzone-badge">📊 Excel (.xlsx)</span>
+                    <span class="dropzone-badge">📋 Texto (.txt)</span>
+                    <span class="dropzone-badge">🖼️ Imagen (.png, .jpg)</span>
+                </div>
+            </div>
+
+            <!-- Upload Queue List -->
+            <div class="upload-queue" id="uploadQueue" style="display: none;">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Upload Progress Bar -->
+            <div class="upload-progress-container" id="uploadProgressContainer">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem; color: var(--text-secondary);">
+                    <span id="uploadStatusLabel">Subiendo e indexando documentos...</span>
+                    <span id="uploadPercentage">0%</span>
+                </div>
+                <div class="upload-progress-bar">
+                    <div class="upload-progress-fill" id="uploadProgressFill"></div>
+                </div>
+            </div>
+
+            <!-- Upload Action Button -->
+            <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" class="btn-secondary" id="btnClearFiles" style="display: none;" onclick="clearFileQueue()">
+                    Cancelar Selección
+                </button>
+                <button type="button" class="btn-primary" id="btnStartUpload" style="display: none;" onclick="startUpload()">
+                    🚀 Subir e Indexar Ahora
+                </button>
+            </div>
+        </div>
+
+        <!-- SECTION 2: DOCUMENT INVENTORY & MANAGEMENT -->
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-title">
+                    <span>📚 Reglamentos y Normas Activas en el Sistema</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="docFilterInput" 
+                        placeholder="🔍 Buscar reglamento..." 
+                        style="width: 240px; padding: 0.4rem 0.75rem; font-size: 0.82rem;"
+                        oninput="filterDocumentsTable()">
+                    <button type="button" class="btn-secondary" onclick="loadDocumentsTable()" title="Refrescar lista" style="padding: 0.4rem 0.65rem;">
+                        🔄
+                    </button>
+                </div>
+            </div>
+            <p class="admin-card-subtitle">
+                Estos son los documentos actualmente consultables por los estudiantes. Puedes eliminar normativas derogadas u obsoletas con un solo clic.
+            </p>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Tipo</th>
+                            <th>Área / Categoría</th>
+                            <th>Páginas</th>
+                            <th>Estado</th>
+                            <th style="text-align: right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="documentsTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                Cargando catálogo de normativas...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 3: MASTER AI ENGINE CONFIGURATION -->
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-title">
+                    <span>🧠 Configuración Maestra del Motor de IA (Para Todos los Alumnos)</span>
+                </div>
+                <span class="brand-badge" style="background: rgba(212, 163, 64, 0.2); color: var(--unach-gold-300);">NIVEL SERVIDOR</span>
+            </div>
+            <p class="admin-card-subtitle">
+                La configuración establecida aquí funciona como el <b>motor central</b> para todas las consultas de los estudiantes. Los alumnos nunca tendrán que crear cuentas, pagar ni ingresar ninguna clave.
+            </p>
+
+            <!-- Mode Selector Cards -->
+            <div class="mode-cards-container" style="margin-bottom: 1.5rem;">
+                <div class="mode-option-card selected" data-mode="gemini" id="adminCardGemini" onclick="selectAdminMode('gemini')">
+                    <div class="mode-card-header">
+                        <span class="mode-card-title">🌟 Google Gemini 2.5 Flash</span>
+                        <span class="brand-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald);">RECOMENDADO</span>
+                    </div>
+                    <p class="mode-card-desc">
+                        100% Gratuito vía Google AI Studio. Razonamiento profundo, respuestas naturales y citas directas de reglamentos.
+                    </p>
+                </div>
+
+                <div class="mode-option-card" data-mode="local_offline" id="adminCardOffline" onclick="selectAdminMode('local_offline')">
+                    <div class="mode-card-header">
+                        <span class="mode-card-title">⚡ Motor Local Offline</span>
+                        <span class="brand-badge">0 INTERNET / 0 CLAVE</span>
+                    </div>
+                    <p class="mode-card-desc">
+                        Extracción directa de artículos desde el servidor sin salir a la nube. Ideal si el servidor no tiene salida a internet.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Gemini Key Form -->
+            <div class="form-group" id="adminGeminiKeyGroup">
+                <label class="form-label" for="adminMasterKeyInput">
+                    Clave API Maestra de Google Gemini (Google AI Studio - 100% Gratis):
+                </label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="adminMasterKeyInput" 
+                        placeholder="Pega aquí la clave AIzaSy... (o déjala vacía para conservar la actual)"
+                        autocomplete="off"
+                        style="flex: 1;">
+                    <button type="button" class="btn-secondary" id="btnTestAdminKey" onclick="testMasterKey()" style="white-space: nowrap;">
+                        🔍 Probar Conexión
+                    </button>
+                </div>
+                <span class="form-hint" style="margin-top: 0.4rem; display: block;">
+                    💡 ¿Necesitas generar una clave gratuita para el servidor? Es gratis en 
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color: var(--unach-gold-300);">Google AI Studio</a>.
+                </span>
+                <div id="adminKeyTestResult" style="display: none; font-size: 0.82rem; margin-top: 0.5rem;"></div>
+            </div>
+
+            <!-- Maintenance & Actions -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-glass-light); padding-top: 1.25rem; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <button type="button" class="btn-secondary" onclick="forceReindex()" id="btnForceReindex">
+                        🔄 Forzar Re-indexación Completa
+                    </button>
+                    <span id="reindexFeedback" style="font-size: 0.82rem; margin-left: 0.5rem; color: var(--unach-gold-300);"></span>
+                </div>
+                <button type="button" class="btn-primary" onclick="saveMasterSettings()" id="btnSaveMaster">
+                    💾 Guardar Configuración del Servidor
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/api.js?v=20261020_7"></script>
+    <script>
+        // Admin Application State
+        let selectedFiles = [];
+        let allDocuments = [];
+        let activeAdminMode = "gemini";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initAdminPortal();
+            setupDropzone();
+        });
+
+        function getAdminPassword() {
+            return sessionStorage.getItem("unach_admin_pass") || "";
+        }
+
+        async function initAdminPortal() {
+            const savedPass = getAdminPassword();
+            if (savedPass) {
+                const res = await API.adminLogin(savedPass);
+                if (res.success) {
+                    showAdminDashboard();
+                    return;
+                }
+            }
+            // Show login gate
+            document.getElementById("adminGate").style.display = "flex";
+            document.getElementById("adminApp").style.display = "none";
+        }
+
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const passInput = document.getElementById("adminPasswordInput");
+            const errDiv = document.getElementById("loginError");
+            const pass = passInput.value.trim();
+
+            errDiv.style.display = "none";
+
+            try {
+                const res = await API.adminLogin(pass);
+                if (res.success) {
+                    sessionStorage.setItem("unach_admin_pass", pass);
+                    showAdminDashboard();
+                } else {
+                    errDiv.textContent = res.error || "Contraseña incorrecta.";
+                    errDiv.style.display = "block";
+                }
+            } catch (err) {
+                errDiv.textContent = "Error al autenticar con el servidor.";
+                errDiv.style.display = "block";
+            }
+        }
+
+        function showAdminDashboard() {
+            document.getElementById("adminGate").style.display = "none";
+            document.getElementById("adminApp").style.display = "block";
+            loadDashboardData();
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem("unach_admin_pass");
+            window.location.reload();
+        }
+
+        async function loadDashboardData() {
+            await Promise.all([loadDocumentsTable(), loadServerSettings()]);
+        }
+
+        async function loadDocumentsTable() {
+            try {
+                const data = await API.getDocuments();
+                allDocuments = data.documents || [];
+
+                // Update Metrics
+                document.getElementById("statDocCount").textContent = data.total_documents || allDocuments.length;
+                document.getElementById("statChunkCount").textContent = (data.total_chunks || 0).toLocaleString();
+                document.getElementById("statPageCount").textContent = (data.total_pages || 0).toLocaleString();
+
+                renderDocumentsTable(allDocuments);
+            } catch (err) {
+                console.error("Error loading documents:", err);
+                showAlert("Error al cargar la lista de documentos: " + err.message, "error");
+            }
+        }
+
+        function renderDocumentsTable(docs) {
+            const tbody = document.getElementById("documentsTableBody");
+            if (!docs || docs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                            No hay documentos indexados. Sube uno arriba para comenzar.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = docs.map(doc => {
+                const ext = doc.filename.split('.').pop().toLowerCase();
+                let badgeClass = "file-type-pdf";
+                if (["docx", "doc"].includes(ext)) badgeClass = "file-type-docx";
+                else if (["xlsx", "xls"].includes(ext)) badgeClass = "file-type-xlsx";
+                else if (["txt", "md"].includes(ext)) badgeClass = "file-type-txt";
+                else if (["png", "jpg", "jpeg"].includes(ext)) badgeClass = "file-type-img";
+
+                const pages = doc.total_pages ? `${doc.total_pages} págs.` : "-";
+                const cat = doc.category || "General";
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600; color: #fff;">${escapeHtml(doc.title || doc.filename)}</div>
+                            <div style="font-size: 0.76rem; color: var(--text-muted); font-family: var(--font-code);">${escapeHtml(doc.filename)}</div>
+                        </td>
+                        <td>
+                            <span class="file-type-badge ${badgeClass}">.${ext}</span>
+                        </td>
+                        <td>
+                            <span style="font-size: 0.78rem; color: var(--unach-gold-300);">${escapeHtml(cat)}</span>
+                        </td>
+                        <td>
+                            <span style="font-size: 0.8rem; color: var(--text-secondary);">${pages}</span>
+                        </td>
+                        <td>
+                            <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.76rem; color: var(--accent-emerald);">
+                                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent-emerald);"></span>
+                                Indexado
+                            </span>
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="btn-delete-doc" onclick="confirmDeleteDocument('${escapeHtml(doc.filename)}')">
+                                🗑️ Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function filterDocumentsTable() {
+            const q = document.getElementById("docFilterInput").value.toLowerCase().trim();
+            if (!q) {
+                renderDocumentsTable(allDocuments);
+                return;
+            }
+            const filtered = allDocuments.filter(d => 
+                (d.title && d.title.toLowerCase().includes(q)) || 
+                (d.filename && d.filename.toLowerCase().includes(q)) ||
+                (d.category && d.category.toLowerCase().includes(q))
+            );
+            renderDocumentsTable(filtered);
+        }
+
+        async function confirmDeleteDocument(filename) {
+            const ok = confirm(`¿Estás seguro de que deseas eliminar permanentemente el documento:\n\n"${filename}"?\n\nEl sistema lo borrará de la carpeta oficial y actualizará el índice de inmediato.`);
+            if (!ok) return;
+
+            const pass = getAdminPassword();
+            try {
+                showAlert(`Eliminando "${filename}" y re-indexando...`, "success");
+                const res = await API.adminDelete(filename, pass);
+                if (res.success) {
+                    showAlert(res.message || "Documento eliminado correctamente.", "success");
+                    await loadDocumentsTable();
+                } else {
+                    showAlert(res.error || "No se pudo eliminar el documento.", "error");
+                }
+            } catch (err) {
+                showAlert("Error al eliminar documento: " + err.message, "error");
+            }
+        }
+
+        // ======================================================================
+        // Upload & Drag-and-Drop
+        // ======================================================================
+        function setupDropzone() {
+            const dropzone = document.getElementById("dropzone");
+            if (!dropzone) return;
+
+            ["dragenter", "dragover"].forEach(evt => {
+                dropzone.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.add("dragover");
+                });
+            });
+
+            ["dragleave", "drop"].forEach(evt => {
+                dropzone.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.remove("dragover");
+                });
+            });
+
+            dropzone.addEventListener("drop", (e) => {
+                const files = Array.from(e.dataTransfer.files || []);
+                addFilesToQueue(files);
+            });
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files || []);
+            addFilesToQueue(files);
+        }
+
+        function addFilesToQueue(newFiles) {
+            const allowedExts = [".pdf", ".docx", ".xlsx", ".txt", ".png", ".jpg", ".jpeg"];
+            for (const file of newFiles) {
+                const ext = "." + file.name.split('.').pop().toLowerCase();
+                if (allowedExts.includes(ext)) {
+                    // Check if duplicate in queue
+                    if (!selectedFiles.some(f => f.name === file.name)) {
+                        selectedFiles.push(file);
+                    }
+                } else {
+                    showAlert(`Formato no soportado: ${file.name}. Solo se aceptan PDF, Word, Excel, TXT e imágenes.`, "error");
+                }
+            }
+            renderQueue();
+        }
+
+        function renderQueue() {
+            const queueDiv = document.getElementById("uploadQueue");
+            const btnUpload = document.getElementById("btnStartUpload");
+            const btnClear = document.getElementById("btnClearFiles");
+
+            if (selectedFiles.length === 0) {
+                queueDiv.style.display = "none";
+                btnUpload.style.display = "none";
+                btnClear.style.display = "none";
+                return;
+            }
+
+            queueDiv.style.display = "flex";
+            btnUpload.style.display = "inline-flex";
+            btnClear.style.display = "inline-flex";
+
+            queueDiv.innerHTML = selectedFiles.map((file, idx) => {
+                const sizeKb = (file.size / 1024).toFixed(1);
+                return `
+                    <div class="queue-item">
+                        <div class="queue-item-left">
+                            <span>📄</span>
+                            <span style="font-weight: 600;">${escapeHtml(file.name)}</span>
+                            <span style="color: var(--text-muted); font-size: 0.78rem;">(${sizeKb} KB)</span>
+                        </div>
+                        <button type="button" class="queue-remove-btn" onclick="removeFileFromQueue(${idx})" title="Quitar de la lista">✕ Quitar</button>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function removeFileFromQueue(idx) {
+            selectedFiles.splice(idx, 1);
+            renderQueue();
+        }
+
+        function clearFileQueue() {
+            selectedFiles = [];
+            renderQueue();
+            document.getElementById("fileUploadInput").value = "";
+        }
+
+        async function startUpload() {
+            if (selectedFiles.length === 0) return;
+
+            const pass = getAdminPassword();
+            const formData = new FormData();
+            for (const f of selectedFiles) {
+                formData.append("files", f);
+            }
+
+            const progressContainer = document.getElementById("uploadProgressContainer");
+            const progressFill = document.getElementById("uploadProgressFill");
+            const progressPercent = document.getElementById("uploadPercentage");
+            const progressLabel = document.getElementById("uploadStatusLabel");
+            const btnUpload = document.getElementById("btnStartUpload");
+
+            progressContainer.style.display = "block";
+            btnUpload.disabled = true;
+            progressFill.style.width = "30%";
+            progressPercent.textContent = "30%";
+            progressLabel.textContent = `Subiendo ${selectedFiles.length} archivo(s) al servidor...`;
+
+            try {
+                // Simulate progressive steps
+                setTimeout(() => {
+                    progressFill.style.width = "65%";
+                    progressPercent.textContent = "65%";
+                    progressLabel.textContent = "Analizando textos, tablas y extrayendo artículos...";
+                }, 800);
+
+                const res = await API.adminUpload(formData, pass);
+
+                progressFill.style.width = "100%";
+                progressPercent.textContent = "100%";
+                progressLabel.textContent = "¡Indexación completada con éxito!";
+
+                if (res.success) {
+                    showAlert(res.message || "Archivos subidos e indexados correctamente.", "success");
+                    clearFileQueue();
+                    await loadDocumentsTable();
+                } else {
+                    showAlert(res.error || "Ocurrió un error al procesar los archivos.", "error");
+                }
+            } catch (err) {
+                showAlert("Error durante la subida: " + err.message, "error");
+            } finally {
+                btnUpload.disabled = false;
+                setTimeout(() => {
+                    progressContainer.style.display = "none";
+                    progressFill.style.width = "0%";
+                }, 3000);
+            }
+        }
+
+        // ======================================================================
+        // Server AI Settings
+        // ======================================================================
+        async function loadServerSettings() {
+            try {
+                const s = await API.getSettings();
+                activeAdminMode = s.mode || "gemini";
+                selectAdminMode(activeAdminMode);
+
+                const statMode = document.getElementById("statAiMode");
+                if (s.mode === "gemini") {
+                    statMode.textContent = "Gemini Flash";
+                    statMode.style.color = "var(--unach-gold-300)";
+                } else {
+                    statMode.textContent = "Local Offline";
+                    statMode.style.color = "var(--accent-cyan)";
+                }
+
+                if (s.masked_key) {
+                    document.getElementById("adminMasterKeyInput").placeholder = `Clave actual en el servidor: ${s.masked_key}`;
+                }
+            } catch (err) {
+                console.error("Error loading server settings:", err);
+            }
+        }
+
+        function selectAdminMode(mode) {
+            activeAdminMode = mode;
+            const cardGemini = document.getElementById("adminCardGemini");
+            const cardOffline = document.getElementById("adminCardOffline");
+            const keyGroup = document.getElementById("adminGeminiKeyGroup");
+
+            if (mode === "gemini") {
+                cardGemini.classList.add("selected");
+                cardOffline.classList.remove("selected");
+                keyGroup.style.display = "block";
+            } else {
+                cardOffline.classList.add("selected");
+                cardGemini.classList.remove("selected");
+                keyGroup.style.display = "none";
+            }
+        }
+
+        async function testMasterKey() {
+            const keyInput = document.getElementById("adminMasterKeyInput");
+            const resDiv = document.getElementById("adminKeyTestResult");
+            const btn = document.getElementById("btnTestAdminKey");
+
+            btn.disabled = true;
+            btn.textContent = "Probando...";
+            resDiv.style.display = "none";
+
+            try {
+                const key = keyInput.value.trim();
+                const res = await API.testConnection(key);
+
+                resDiv.style.display = "block";
+                if (res.success) {
+                    resDiv.style.color = "var(--accent-emerald)";
+                    resDiv.innerHTML = `✓ ${escapeHtml(res.message)}`;
+                } else {
+                    resDiv.style.color = "#ff6b81";
+                    resDiv.innerHTML = `✕ ${escapeHtml(res.error || "Fallo en la prueba de conexión.")}`;
+                }
+            } catch (err) {
+                resDiv.style.display = "block";
+                resDiv.style.color = "#ff6b81";
+                resDiv.textContent = "Error al conectar con la API: " + err.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "🔍 Probar Conexión";
+            }
+        }
+
+        async function saveMasterSettings() {
+            const keyInput = document.getElementById("adminMasterKeyInput");
+            const btn = document.getElementById("btnSaveMaster");
+
+            btn.disabled = true;
+            btn.textContent = "Guardando...";
+
+            try {
+                const updates = { mode: activeAdminMode };
+                const rawKey = keyInput.value.trim();
+                if (rawKey) {
+                    updates.gemini_api_key = rawKey;
+                }
+
+                const res = await API.updateSettings(updates);
+                showAlert("Configuración del servidor guardada exitosamente. Aplica de inmediato a todos los alumnos.", "success");
+                await loadServerSettings();
+            } catch (err) {
+                showAlert("Error al guardar configuración: " + err.message, "error");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "💾 Guardar Configuración del Servidor";
+            }
+        }
+
+        async function forceReindex() {
+            const btn = document.getElementById("btnForceReindex");
+            const feedback = document.getElementById("reindexFeedback");
+
+            btn.disabled = true;
+            feedback.textContent = "⏳ Re-indexando toda la base de conocimiento...";
+
+            try {
+                const res = await API.reindex();
+                feedback.textContent = `✓ Listo: ${res.total_documents} docs y ${res.total_chunks} fragmentos.`;
+                showAlert(res.message || "Re-indexación completada.", "success");
+                await loadDocumentsTable();
+            } catch (err) {
+                feedback.textContent = "✕ Error al re-indexar.";
+                showAlert("Error al re-indexar: " + err.message, "error");
+            } finally {
+                btn.disabled = false;
+                setTimeout(() => { feedback.textContent = ""; }, 5000);
+            }
+        }
+
+        function showAlert(msg, type = "success") {
+            const banner = document.getElementById("adminAlertBanner");
+            const text = document.getElementById("adminAlertText");
+            text.textContent = msg;
+            banner.className = `banner-alert ${type}`;
+            banner.style.display = "flex";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function closeAlertBanner() {
+            document.getElementById("adminAlertBanner").style.display = "none";
+        }
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
