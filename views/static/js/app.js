@@ -201,6 +201,40 @@ function initEventListeners() {
             showToast("Nueva consulta iniciada");
         });
     }
+
+    // Direct Sidebar Toggle Handler
+    const btnToggleSidebar = document.getElementById("btnToggleSidebar");
+    if (btnToggleSidebar) {
+        btnToggleSidebar.onclick = (e) => {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            toggleSidebar();
+        };
+    }
+
+    // Direct Sidebar Backdrop and Close Buttons Handler
+    const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+    if (sidebarBackdrop) {
+        sidebarBackdrop.onclick = (e) => {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            closeSidebar();
+        };
+    }
+
+    document.querySelectorAll(".btn-close-sidebar").forEach(btn => {
+        btn.onclick = (e) => {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            closeSidebar();
+        };
+    });
 }
 
 function selectCategory(catId, catName) {
@@ -286,11 +320,12 @@ async function loadSettings() {
 
 function updateModeUI(mode, hasKey) {
     if (!Elements.modeLabel) return;
+    const isCompact = window.innerWidth <= 680;
     if (mode === "gemini" && hasKey) {
-        Elements.modeLabel.textContent = "🟢 Asistente UNACH Activo";
+        Elements.modeLabel.textContent = isCompact ? "Activo" : "Asistente Activo";
         if (Elements.modeChip) Elements.modeChip.style.borderColor = "var(--unach-gold-400)";
     } else {
-        Elements.modeLabel.textContent = "🟢 Asistente UNACH (Offline)";
+        Elements.modeLabel.textContent = isCompact ? "Offline" : "Modo Offline";
         if (Elements.modeChip) Elements.modeChip.style.borderColor = "var(--border-glass)";
     }
 }
@@ -852,12 +887,20 @@ function toggleSidebar(forceState) {
 
     if (window.innerWidth <= 900) {
         const isOpen = (typeof forceState === "boolean") ? forceState : !sidebar.classList.contains("open");
-        sidebar.classList.toggle("open", isOpen);
-        if (backdrop) {
-            backdrop.classList.toggle("active", isOpen);
+        sidebar.classList.remove("collapsed");
+        if (isOpen) {
+            sidebar.classList.add("open");
+            if (backdrop) backdrop.classList.add("active");
+            document.body.classList.add("sidebar-mobile-locked");
+        } else {
+            sidebar.classList.remove("open");
+            if (backdrop) backdrop.classList.remove("active");
+            document.body.classList.remove("sidebar-mobile-locked");
         }
-        document.body.classList.toggle("sidebar-mobile-locked", isOpen);
     } else {
+        sidebar.classList.remove("open");
+        if (backdrop) backdrop.classList.remove("active");
+        document.body.classList.remove("sidebar-mobile-locked");
         const isCollapsed = (typeof forceState === "boolean") ? !forceState : !sidebar.classList.contains("collapsed");
         sidebar.classList.toggle("collapsed", isCollapsed);
     }
@@ -866,6 +909,11 @@ function toggleSidebar(forceState) {
 function closeSidebar() {
     toggleSidebar(false);
 }
+
+// Window resize listener to keep header labels responsive
+window.addEventListener("resize", () => {
+    updateModeUI(AppState.activeMode, AppState.hasGeminiKey);
+});
 
 function showToast(message) {
     const toast = document.createElement("div");

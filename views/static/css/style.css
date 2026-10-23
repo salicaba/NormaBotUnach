@@ -217,10 +217,10 @@ body.sidebar-mobile-locked {
 }
 
 .status-chip {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.85rem;
+    gap: 0.45rem;
+    padding: 0.35rem 0.75rem;
     background: rgba(14, 32, 52, 0.7);
     border: 1px solid var(--border-glass);
     border-radius: 20px;
@@ -228,6 +228,9 @@ body.sidebar-mobile-locked {
     color: var(--text-secondary);
     cursor: pointer;
     transition: var(--transition-fast);
+    white-space: nowrap !important;
+    flex-shrink: 0;
+    user-select: none;
 }
 
 .status-chip:hover {
@@ -287,8 +290,10 @@ body.sidebar-mobile-locked {
     flex-shrink: 0;
 }
 
-.sidebar.collapsed {
-    margin-left: -320px !important;
+@media (min-width: 901px) {
+    .sidebar.collapsed {
+        margin-left: -320px !important;
+    }
 }
 
 .sidebar-section {
@@ -1953,49 +1958,107 @@ a:focus-visible {
    2. Medium Screens, Tablets & Landscape Mobile (max-width: 900px)
    -------------------------------------------------------------------------- */
 @media (max-width: 900px) {
-    /* Header */
+    /* Header Navbar - Clean, spacious and never crowded */
     .header-nav {
-        padding: 0.65rem 1rem;
+        padding: 0.55rem 0.85rem;
+        gap: 0.65rem;
+        justify-content: space-between;
+        min-height: 54px;
+    }
+    .brand-section {
+        gap: 0.6rem;
+        min-width: 0;
+        flex-shrink: 0;
     }
     .brand-slogan {
-        display: none;
+        display: none !important;
+    }
+    .brand-institution {
+        display: none !important;
+    }
+    .brand-badge {
+        display: none !important;
     }
     .brand-crest {
-        width: 42px;
-        height: 42px;
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
     }
     .brand-title {
         font-size: 1.05rem;
+        white-space: nowrap;
     }
     .btn-menu-toggle {
         display: flex;
+        flex-shrink: 0;
+    }
+
+    /* Hide the bulky documents pill in the header to give maximum breathing room */
+    #btnOpenDocs {
+        display: none !important;
+    }
+
+    .header-actions {
+        gap: 0.45rem;
+        flex-shrink: 0;
+    }
+
+    .status-chip {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.76rem;
+        white-space: nowrap !important;
     }
 
     /* Off-Canvas Sliding Drawer Sidebar */
     .sidebar {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        width: min(320px, 86vw);
-        height: 100%;
-        height: 100dvh;
-        z-index: 110;
-        transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: fixed !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: min(320px, 85vw) !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        z-index: 1000 !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         margin-left: 0 !important;
-        background: var(--bg-secondary);
-        box-shadow: none;
-        border-right: 1px solid var(--border-glass);
+        background: var(--bg-secondary) !important;
+        box-shadow: none !important;
+        border-right: 1px solid var(--border-glass) !important;
+        display: flex !important;
+        visibility: visible !important;
     }
 
     .sidebar.open {
-        transform: translateX(0);
-        box-shadow: 12px 0 40px rgba(0, 0, 0, 0.75);
+        transform: translateX(0) !important;
+        box-shadow: 12px 0 40px rgba(0, 0, 0, 0.85) !important;
+        z-index: 1001 !important;
+    }
+
+    .sidebar.collapsed {
+        margin-left: 0 !important;
     }
 
     .sidebar-mobile-header {
-        display: flex;
+        display: flex !important;
+    }
+
+    .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(3, 8, 14, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity var(--transition-smooth);
+        cursor: pointer;
+    }
+
+    .sidebar-backdrop.active {
+        display: block !important;
+        opacity: 1 !important;
     }
 
     /* Chat Stage */
@@ -2058,50 +2121,38 @@ a:focus-visible {
 @media (max-width: 640px) {
     /* Header */
     .header-nav {
-        padding: 0.5rem 0.75rem;
-        gap: 0.5rem;
+        padding: 0.45rem 0.65rem;
+        gap: 0.45rem;
     }
     .brand-section {
-        gap: 0.5rem;
+        gap: 0.45rem;
         min-width: 0;
     }
     .brand-crest {
-        width: 36px;
-        height: 36px;
-        border-radius: 9px;
-    }
-    .brand-institution {
-        font-size: 0.55rem;
-        letter-spacing: 0.05em;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
     }
     .brand-title {
         font-size: 0.98rem;
         white-space: nowrap;
     }
-    .brand-badge {
-        display: none;
-    }
     .header-actions {
         gap: 0.35rem;
     }
     .status-chip {
-        padding: 0.35rem 0.65rem;
-        font-size: 0.74rem;
-        min-height: 36px;
-    }
-    .header-actions .status-chip:not(#modeChip) {
-        display: none;
+        padding: 0.3rem 0.55rem;
+        font-size: 0.72rem;
+        min-height: 34px;
     }
     #modeLabel {
         font-size: 0.72rem;
+        white-space: nowrap;
     }
     .btn-icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 9px;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
     }
 
     /* Welcome Hero Box */
@@ -2412,22 +2463,29 @@ a:focus-visible {
    4. Small Mobile Phones (max-width: 480px)
    -------------------------------------------------------------------------- */
 @media (max-width: 480px) {
-    .brand-institution {
-        display: none;
+    .header-nav {
+        padding: 0.4rem 0.55rem;
+        gap: 0.35rem;
+    }
+    .brand-section {
+        gap: 0.4rem;
+    }
+    .brand-crest {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        padding: 2px;
     }
     .brand-title {
         font-size: 0.92rem;
     }
-    #modeLabel {
-        display: none;
-    }
     #modeChip {
-        padding: 0.4rem 0.55rem;
-        border-radius: 12px;
+        padding: 0.3rem 0.5rem;
+        font-size: 0.7rem;
     }
     .btn-icon {
-        width: 36px;
-        height: 36px;
+        width: 34px;
+        height: 34px;
     }
     .hero-emblem {
         width: 52px;
@@ -2453,18 +2511,21 @@ a:focus-visible {
    -------------------------------------------------------------------------- */
 @media (max-width: 360px) {
     .header-nav {
-        padding: 0.4rem 0.5rem;
+        padding: 0.35rem 0.45rem;
     }
     .brand-crest {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
     }
     .brand-title {
-        font-size: 0.86rem;
+        font-size: 0.84rem;
+    }
+    #modeLabel {
+        display: none !important;
     }
     .btn-icon {
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
     }
     .chat-history {
         padding: 0.5rem 0.35rem;
