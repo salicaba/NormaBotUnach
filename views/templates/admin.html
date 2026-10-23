@@ -53,8 +53,9 @@
 <body class="admin-body">
 
     <!-- Login Authentication Gate Overlay -->
-    <div class="admin-gate-overlay" id="adminGate" style="display: flex;">
-        <div class="admin-gate-card">
+    <div class="admin-gate-overlay" id="adminGate" style="display: flex;" onclick="if(event.target === this) window.location.replace('/')">
+        <div class="admin-gate-card" style="position: relative;">
+            <button type="button" onclick="window.location.replace('/')" title="Cerrar y volver al Portal de Alumnos" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; padding: 4px; line-height: 1;">✕</button>
             <div class="gate-crest" style="background: #ffffff !important;">
                 <img src="/static/img/unach_logo.png" alt="Escudo UNACH">
             </div>
@@ -80,7 +81,7 @@
 
                 <div style="display: flex; gap: 0.75rem;">
                     <a href="/" class="btn-secondary" style="flex: 1; text-align: center; text-decoration: none; padding: 0.65rem;">
-                        Volver al Chat
+                        ← Volver a Alumnos
                     </a>
                     <button type="submit" class="btn-primary" id="btnLoginSubmit" style="flex: 1.5; padding: 0.65rem;">
                         Entrar al Panel ➔
@@ -114,9 +115,6 @@
                 <a href="/" class="btn-back-portal" title="Regresar al chat para alumnos">
                     ← Portal Alumnos
                 </a>
-                <button type="button" class="btn-logout" onclick="handleLogout()" title="Cerrar sesión de administrador">
-                    🔒 Salir
-                </button>
             </div>
         </header>
 
@@ -398,7 +396,7 @@
 
         function handleLogout() {
             sessionStorage.removeItem("unach_admin_pass");
-            window.location.reload();
+            window.location.replace("/");
         }
 
         async function loadDashboardData() {

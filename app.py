@@ -30,6 +30,7 @@ def create_app():
         static_folder=str(config.BASE_DIR / "views" / "static")
     )
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.secret_key = config.SECRET_KEY
     CORS(app)
 
