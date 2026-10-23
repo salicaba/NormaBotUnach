@@ -90,7 +90,14 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+body.sidebar-mobile-locked {
+    overflow: hidden !important;
 }
 
 /* ==========================================================================
@@ -1287,64 +1294,175 @@ h1, h2, h3, h4, h5, h6 {
     100% { transform: scale(1); }
 }
 
-/* Responsive Breakpoints */
-@media (max-width: 900px) {
-    .btn-menu-toggle {
-        display: flex;
-    }
-    .header-nav {
-        padding: 0.65rem 1rem;
-    }
-    .brand-institution {
-        font-size: 0.58rem;
-    }
-    .brand-slogan {
-        display: none;
-    }
-    .brand-crest {
-        width: 42px;
-        height: 42px;
-    }
-    .brand-title {
-        font-size: 1.05rem;
-    }
-    .sidebar {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: -320px;
-        box-shadow: var(--shadow-lg);
-    }
-    .sidebar.open {
-        left: 0;
-    }
-    .chat-history {
-        padding: 1rem;
-    }
-    .input-dock {
-        padding: 0.75rem 1rem;
-    }
-    .mode-cards-container {
-        grid-template-columns: 1fr;
-    }
+/* ==========================================================================
+   Mobile Sidebar Drawer, Backdrop & Touch Ergonomics
+   ========================================================================== */
+
+/* Mobile Backdrop Overlay */
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 8, 14, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 105;
+    opacity: 0;
+    transition: opacity var(--transition-smooth);
+    cursor: pointer;
 }
 
-@media (max-width: 600px) {
-    .header-nav {
-        padding: 0.55rem 0.75rem;
-    }
-    .brand-institution {
-        display: none;
-    }
-    .brand-title {
-        font-size: 0.95rem;
-    }
-    .brand-badge {
-        display: none;
-    }
-    .header-actions .status-chip:not(#modeChip) {
-        display: none;
-    }
+.sidebar-backdrop.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Sidebar Mobile Header */
+.sidebar-mobile-header {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.15rem;
+    background: rgba(10, 24, 43, 0.85);
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.sidebar-mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.sidebar-mobile-title {
+    font-family: var(--font-heading);
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.sidebar-mobile-sub {
+    font-size: 0.68rem;
+    color: var(--unach-gold-400);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    display: block;
+}
+
+.btn-close-sidebar {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass-light);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-close-sidebar:hover {
+    background: rgba(244, 63, 94, 0.2);
+    color: var(--accent-rose);
+    border-color: rgba(244, 63, 94, 0.4);
+}
+
+/* Universal Touch & Button Ergonomics for All Devices */
+button,
+input,
+textarea,
+select,
+.btn-primary,
+.btn-secondary,
+.btn-dock,
+.btn-icon,
+.category-btn,
+.quick-q-item,
+.hero-card,
+.mode-option-card,
+.suggestion-pill,
+.action-btn,
+.status-chip,
+.btn-delete-doc,
+.btn-back-portal {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:active,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-dock:active,
+.btn-icon:active,
+.action-btn:active,
+.btn-delete-doc:active {
+    transform: scale(0.96);
+}
+
+.category-btn:active,
+.quick-q-item:active,
+.hero-card:active,
+.suggestion-pill:active {
+    transform: scale(0.985);
+    opacity: 0.9;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--unach-gold-400);
+    outline-offset: 2px;
+}
+
+/* Chat Message Content Media & Table Overflow Safeguards */
+.message-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.message-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.message-content table th,
+.message-content table td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-glass-light);
+    font-size: 0.82rem;
+}
+
+.message-content table th {
+    background: rgba(8, 20, 34, 0.8);
+    color: var(--unach-gold-300);
+    white-space: nowrap;
+}
+
+.message-content pre {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    background: rgba(4, 9, 16, 0.8);
+    border: 1px solid var(--border-glass-light);
+    margin: 0.75rem 0;
+}
+
+.message-content pre code {
+    background: transparent;
+    padding: 0;
+    border: none;
+    font-size: 0.82rem;
 }
 
 /* ==========================================================================
@@ -1814,4 +1932,546 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 1.5rem;
     line-height: 1.45;
 }
+
+/* ==========================================================================
+   Comprehensive Responsive Breakpoints (All Screen Sizes & Devices)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Large Screens & Laptops (max-width: 1200px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+    .admin-container {
+        padding: 1.25rem 1rem 3rem;
+    }
+    .admin-metrics {
+        gap: 1rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   2. Medium Screens, Tablets & Landscape Mobile (max-width: 900px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+    /* Header */
+    .header-nav {
+        padding: 0.65rem 1rem;
+    }
+    .brand-slogan {
+        display: none;
+    }
+    .brand-crest {
+        width: 42px;
+        height: 42px;
+    }
+    .brand-title {
+        font-size: 1.05rem;
+    }
+    .btn-menu-toggle {
+        display: flex;
+    }
+
+    /* Off-Canvas Sliding Drawer Sidebar */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: min(320px, 86vw);
+        height: 100%;
+        height: 100dvh;
+        z-index: 110;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        margin-left: 0 !important;
+        background: var(--bg-secondary);
+        box-shadow: none;
+        border-right: 1px solid var(--border-glass);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 12px 0 40px rgba(0, 0, 0, 0.75);
+    }
+
+    .sidebar-mobile-header {
+        display: flex;
+    }
+
+    /* Chat Stage */
+    .chat-history {
+        padding: 1.25rem 1rem;
+    }
+
+    .welcome-hero {
+        margin: 1rem auto;
+        padding: 1.75rem 1.5rem;
+    }
+
+    .hero-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.85rem;
+    }
+
+    .input-dock {
+        padding: 0.75rem 1.25rem calc(0.75rem + env(safe-area-inset-bottom, 0px)) 1.25rem;
+    }
+
+    .mode-cards-container {
+        grid-template-columns: 1fr;
+    }
+
+    /* Admin Portal */
+    .admin-navbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.85rem;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .admin-nav-actions {
+        justify-content: flex-end;
+    }
+
+    .admin-metrics {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.85rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .admin-card {
+        padding: 1.35rem 1.15rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .admin-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.65rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   3. Standard Mobile Screens (max-width: 640px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+    /* Header */
+    .header-nav {
+        padding: 0.5rem 0.75rem;
+        gap: 0.5rem;
+    }
+    .brand-section {
+        gap: 0.5rem;
+        min-width: 0;
+    }
+    .brand-crest {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+    }
+    .brand-institution {
+        font-size: 0.55rem;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .brand-title {
+        font-size: 0.98rem;
+        white-space: nowrap;
+    }
+    .brand-badge {
+        display: none;
+    }
+    .header-actions {
+        gap: 0.35rem;
+    }
+    .status-chip {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.74rem;
+        min-height: 36px;
+    }
+    .header-actions .status-chip:not(#modeChip) {
+        display: none;
+    }
+    #modeLabel {
+        font-size: 0.72rem;
+    }
+    .btn-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+    }
+
+    /* Welcome Hero Box */
+    .welcome-hero {
+        margin: 0.5rem auto 1rem;
+        padding: 1.35rem 1rem;
+        border-radius: 16px;
+    }
+    .hero-emblem {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 0.85rem;
+        border-radius: 14px;
+        padding: 4px;
+    }
+    .hero-title {
+        font-size: 1.28rem;
+        margin-bottom: 0.45rem;
+    }
+    .hero-subtitle {
+        font-size: 0.84rem;
+        margin-bottom: 1rem;
+        line-height: 1.45;
+    }
+    .hero-badges {
+        gap: 0.35rem;
+        margin-bottom: 1.15rem;
+    }
+    .hero-badge-pill {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.55rem;
+        border-radius: 14px;
+    }
+    .hero-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 0.65rem;
+    }
+    .hero-card {
+        padding: 0.85rem;
+        border-radius: 11px;
+    }
+    .hero-card-icon {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+    .hero-card-title {
+        font-size: 0.85rem;
+    }
+    .hero-card-desc {
+        font-size: 0.72rem;
+        line-height: 1.35;
+    }
+
+    /* Chat Messages */
+    .chat-history {
+        padding: 0.75rem 0.5rem;
+        gap: 0.85rem;
+    }
+    .message-row {
+        gap: 0.45rem;
+        max-width: 100%;
+    }
+    .message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+    }
+    .message-avatar.assistant svg {
+        width: 18px;
+        height: 18px;
+    }
+    .message-bubble {
+        padding: 0.75rem 0.85rem;
+        border-radius: 14px;
+        font-size: 0.88rem;
+        max-width: 88%;
+        line-height: 1.55;
+    }
+    .message-row.assistant .message-bubble {
+        max-width: calc(100% - 38px);
+    }
+    .message-header {
+        font-size: 0.68rem;
+        margin-bottom: 0.4rem;
+        padding-bottom: 0.3rem;
+    }
+    .message-model-tag {
+        font-size: 0.65rem;
+        padding: 1px 5px;
+    }
+    .message-time {
+        font-size: 0.66rem;
+    }
+    .message-actions {
+        gap: 0.35rem;
+        flex-wrap: wrap;
+        margin-top: 0.65rem;
+    }
+    .action-btn {
+        padding: 4px 8px;
+        font-size: 0.72rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border-glass-light);
+        border-radius: 6px;
+    }
+    .sources-toggle {
+        font-size: 0.74rem;
+    }
+    .source-card {
+        padding: 0.5rem 0.7rem;
+        font-size: 0.72rem;
+    }
+    .suggestion-pill {
+        font-size: 0.72rem;
+        padding: 0.35rem 0.65rem;
+    }
+
+    /* Input Dock */
+    .input-dock {
+        padding: 0.5rem 0.65rem calc(0.5rem + env(safe-area-inset-bottom, 0px)) 0.65rem;
+    }
+    .input-box {
+        padding: 0.45rem 0.55rem;
+        border-radius: 13px;
+        gap: 0.45rem;
+    }
+    .chat-textarea {
+        font-size: 16px !important; /* Prevents auto-zoom in iOS Safari */
+        min-height: 22px;
+        max-height: 96px;
+        line-height: 1.4;
+    }
+    .btn-dock {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+    }
+    .btn-dock svg {
+        width: 16px;
+        height: 16px;
+    }
+    .active-category-pill {
+        font-size: 0.72rem;
+        padding: 3px 8px;
+        margin-bottom: 0.35rem;
+    }
+    .input-footer {
+        padding: 0.25rem 0.15rem 0;
+    }
+    .disclaimer-text {
+        font-size: 0.64rem;
+        text-align: center;
+        line-height: 1.3;
+    }
+
+    /* Modals */
+    .modal-overlay {
+        padding: 0.5rem;
+    }
+    .modal-card {
+        border-radius: 14px;
+        max-height: 94vh;
+        width: 100%;
+    }
+    .modal-header {
+        padding: 0.85rem 1rem;
+    }
+    .modal-title {
+        font-size: 1rem;
+    }
+    .modal-body {
+        padding: 1rem;
+        gap: 0.85rem;
+    }
+    .modal-footer {
+        padding: 0.75rem 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .modal-footer button,
+    .modal-footer a {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+
+    /* Admin Portal */
+    .admin-container {
+        padding: 0.75rem 0.65rem 2.5rem;
+    }
+    .admin-navbar {
+        padding: 0.75rem;
+        border-radius: 12px;
+    }
+    .admin-nav-crest {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+    }
+    .admin-nav-title {
+        font-size: 1rem;
+    }
+    .admin-nav-subtitle {
+        font-size: 0.7rem;
+        line-height: 1.3;
+    }
+    .btn-back-portal {
+        padding: 0.45rem 0.75rem;
+        font-size: 0.78rem;
+    }
+    .admin-metrics {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem;
+    }
+    .metric-card {
+        padding: 0.75rem 0.85rem;
+        gap: 0.6rem;
+        border-radius: 10px;
+    }
+    .metric-icon-box {
+        width: 38px;
+        height: 38px;
+        font-size: 1.15rem;
+        border-radius: 9px;
+    }
+    .metric-value {
+        font-size: 1.25rem;
+    }
+    .metric-label {
+        font-size: 0.7rem;
+    }
+    .dropzone {
+        padding: 1.5rem 1rem;
+    }
+    .dropzone-icon {
+        font-size: 2.3rem;
+        margin-bottom: 0.4rem;
+    }
+    .dropzone-title {
+        font-size: 1rem;
+    }
+    .dropzone-desc {
+        font-size: 0.76rem;
+    }
+    .admin-card-header-actions {
+        width: 100%;
+        display: flex;
+        gap: 0.5rem;
+    }
+    #docFilterInput {
+        width: 100% !important;
+        font-size: 0.82rem;
+    }
+    .admin-key-input-row {
+        flex-direction: column !important;
+        gap: 0.5rem;
+    }
+    #btnTestAdminKey {
+        width: 100%;
+        justify-content: center;
+    }
+    .admin-card-footer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem;
+    }
+    .admin-card-footer > div,
+    .admin-card-footer button {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+    .admin-table th,
+    .admin-table td {
+        padding: 0.65rem 0.75rem;
+        font-size: 0.78rem;
+    }
+    .btn-delete-doc {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.74rem;
+    }
+
+    /* Admin Login Gate */
+    .admin-gate-overlay {
+        padding: 0.75rem;
+    }
+    .admin-gate-card {
+        padding: 1.75rem 1.15rem;
+        border-radius: 14px;
+        max-width: 96vw;
+    }
+    .gate-crest {
+        width: 62px;
+        height: 62px;
+        border-radius: 14px;
+        margin-bottom: 1rem;
+    }
+    .gate-title {
+        font-size: 1.2rem;
+    }
+    .gate-subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 1.25rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   4. Small Mobile Phones (max-width: 480px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+    .brand-institution {
+        display: none;
+    }
+    .brand-title {
+        font-size: 0.92rem;
+    }
+    #modeLabel {
+        display: none;
+    }
+    #modeChip {
+        padding: 0.4rem 0.55rem;
+        border-radius: 12px;
+    }
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+    }
+    .hero-emblem {
+        width: 52px;
+        height: 52px;
+    }
+    .hero-title {
+        font-size: 1.18rem;
+    }
+    .admin-metrics {
+        grid-template-columns: 1fr;
+    }
+    .metric-card {
+        flex-direction: row;
+        align-items: center;
+    }
+    #loginForm > div[style*="display: flex"] {
+        flex-direction: column !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   5. Ultra-Compact Mobile Screens (max-width: 360px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 360px) {
+    .header-nav {
+        padding: 0.4rem 0.5rem;
+    }
+    .brand-crest {
+        width: 32px;
+        height: 32px;
+    }
+    .brand-title {
+        font-size: 0.86rem;
+    }
+    .btn-icon {
+        width: 34px;
+        height: 34px;
+    }
+    .chat-history {
+        padding: 0.5rem 0.35rem;
+    }
+    .input-dock {
+        padding: 0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom, 0px)) 0.5rem;
+    }
+}
+
 

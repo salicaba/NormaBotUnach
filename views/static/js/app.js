@@ -201,15 +201,6 @@ function initEventListeners() {
             showToast("Nueva consulta iniciada");
         });
     }
-
-    // Mobile Sidebar Toggle
-    const btnToggleSidebar = document.getElementById("btnToggleSidebar");
-    if (btnToggleSidebar) {
-        btnToggleSidebar.addEventListener("click", () => {
-            const sidebar = document.getElementById("sidebar");
-            if (sidebar) sidebar.classList.toggle("open");
-        });
-    }
 }
 
 function selectCategory(catId, catName) {
@@ -256,6 +247,9 @@ function setupQuickQuestionListeners() {
             const question = item.getAttribute("data-question") || item.textContent.trim();
             Elements.chatInput.value = question;
             handleSendMessage();
+            if (window.innerWidth <= 900) {
+                closeSidebar();
+            }
         });
     });
 }
@@ -851,14 +845,26 @@ function closeDocsModal() {
     closeModal(document.getElementById("docsModal"));
 }
 
-function toggleSidebar() {
+function toggleSidebar(forceState) {
     const sidebar = document.getElementById("sidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
     if (!sidebar) return;
+
     if (window.innerWidth <= 900) {
-        sidebar.classList.toggle("open");
+        const isOpen = (typeof forceState === "boolean") ? forceState : !sidebar.classList.contains("open");
+        sidebar.classList.toggle("open", isOpen);
+        if (backdrop) {
+            backdrop.classList.toggle("active", isOpen);
+        }
+        document.body.classList.toggle("sidebar-mobile-locked", isOpen);
     } else {
-        sidebar.classList.toggle("collapsed");
+        const isCollapsed = (typeof forceState === "boolean") ? !forceState : !sidebar.classList.contains("collapsed");
+        sidebar.classList.toggle("collapsed", isCollapsed);
     }
+}
+
+function closeSidebar() {
+    toggleSidebar(false);
 }
 
 function showToast(message) {
@@ -894,3 +900,4 @@ window.closeSettingsModal = closeSettingsModal;
 window.openDocsModal = openDocsModal;
 window.closeDocsModal = closeDocsModal;
 window.toggleSidebar = toggleSidebar;
+window.closeSidebar = closeSidebar;

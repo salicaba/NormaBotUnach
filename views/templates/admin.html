@@ -6,7 +6,7 @@
     <title>UNACH NormaBot - Panel de Gestión y Administración</title>
     <meta name="description" content="Panel de administración y gestión de reglamentos, documentos y motor de IA de la Universidad Autónoma de Chiapas.">
     
-    <link rel="stylesheet" href="/static/css/style.css?v=20261020_8">
+    <link rel="stylesheet" href="/static/css/style.css?v=20261023_resp">
     <link rel="icon" type="image/png" href="/static/img/unach_logo.png">
 
     <style>
@@ -219,7 +219,7 @@
                 <div class="admin-card-title">
                     <span>📚 Reglamentos y Normas Activas en el Sistema</span>
                 </div>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <div class="admin-card-header-actions" style="display: flex; gap: 0.5rem; align-items: center;">
                     <input 
                         type="text" 
                         class="form-input" 
@@ -299,7 +299,7 @@
                 <label class="form-label" for="adminMasterKeyInput">
                     Clave API Maestra de Google Gemini (Google AI Studio - 100% Gratis):
                 </label>
-                <div style="display: flex; gap: 0.5rem;">
+                <div class="admin-key-input-row" style="display: flex; gap: 0.5rem;">
                     <input 
                         type="password" 
                         class="form-input" 
@@ -319,7 +319,7 @@
             </div>
 
             <!-- Maintenance & Actions -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-glass-light); padding-top: 1.25rem; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div class="admin-card-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-glass-light); padding-top: 1.25rem; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                 <div>
                     <button type="button" class="btn-secondary" onclick="forceReindex()" id="btnForceReindex">
                         🔄 Forzar Re-indexación Completa
@@ -335,7 +335,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/static/js/api.js?v=20261020_7"></script>
+    <script src="/static/js/api.js?v=20261023_resp"></script>
     <script>
         // Admin Application State
         let selectedFiles = [];

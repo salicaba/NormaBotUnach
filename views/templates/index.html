@@ -7,7 +7,7 @@
     <meta name="description" content="Asistente de Inteligencia Artificial 100% gratuito basado en los reglamentos, estatutos y normas oficiales de la Universidad Autónoma de Chiapas (UNACH).">
     
     <!-- Design System CSS (with cache-busting) -->
-    <link rel="stylesheet" href="/static/css/style.css?v=20261020_9">
+    <link rel="stylesheet" href="/static/css/style.css?v=20261023_resp">
     <link rel="icon" type="image/png" href="/static/img/unach_logo.png">
 
     <!-- Embedded Guaranteed Loader Animation Styles -->
@@ -41,8 +41,10 @@
         .modal-overlay.active {
             display: flex !important;
         }
-        .sidebar.collapsed {
-            margin-left: -320px !important;
+        @media (min-width: 901px) {
+            .sidebar.collapsed {
+                margin-left: -320px !important;
+            }
         }
     </style>
 </head>
@@ -101,6 +103,22 @@
         <div class="main-wrapper">
             <!-- Left Sidebar -->
             <aside class="sidebar" id="sidebar">
+                <!-- Mobile Sidebar Header with Close Button -->
+                <div class="sidebar-mobile-header">
+                    <div class="sidebar-mobile-brand">
+                        <div class="brand-crest" style="width: 34px; height: 34px; border-radius: 8px;">
+                            <img src="/static/img/unach_logo.png" alt="UNACH" class="brand-crest-img">
+                        </div>
+                        <div>
+                            <div class="sidebar-mobile-title">UNACH <span class="gold-accent">NormaBot</span></div>
+                            <span class="sidebar-mobile-sub">Menú de Reglamentos</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-icon btn-close-sidebar" onclick="closeSidebar()" aria-label="Cerrar menú">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+
                 <!-- Categories Section -->
                 <div class="sidebar-section">
                     <div class="sidebar-title">
@@ -171,6 +189,9 @@
                     </a>
                 </div>
             </aside>
+
+            <!-- Sidebar Mobile Backdrop -->
+            <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
             <!-- Chat Stage (Center) -->
             <main class="chat-stage">
@@ -353,7 +374,7 @@
     </div>
 
     <!-- Scripts (with cache-busting) -->
-    <script src="/static/js/api.js?v=20261020_9"></script>
-    <script src="/static/js/app.js?v=20261020_9"></script>
+    <script src="/static/js/api.js?v=20261023_resp"></script>
+    <script src="/static/js/app.js?v=20261023_resp"></script>
 </body>
 </html>
